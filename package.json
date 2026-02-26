@@ -1,0 +1,24 @@
+{
+  "name": "detran-mg",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "^1.13.5",
+    "axios-cookiejar-support": "^6.0.5",
+    "cheerio": "^1.2.0",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "pix-payload": "^1.0.4",
+    "qrcode": "^1.5.4",
+    "tough-cookie": "^6.0.0"
+  }
+}

