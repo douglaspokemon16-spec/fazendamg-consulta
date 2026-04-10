@@ -9,7 +9,7 @@ const QRCode = require('qrcode');
 const { payload } = require('pix-payload');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;  // <<--- ÚNICA MUDANÇA AQUI
 
 // 1. Confiar no proxy (para obter IP real do cliente)
 app.set('trust proxy', true);
@@ -351,7 +351,7 @@ app.post('/api/admin/clear-logs', authMiddleware, (req, res) => {
     res.json({ success: true });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {  // <<--- ÚNICA MUDANÇA AQUI TAMBÉM
     console.log(`Servidor rodando na porta ${PORT}`);
     if (!fs.existsSync(DB_PATH)) {
         salvarDB({
